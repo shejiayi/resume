@@ -1,0 +1,41 @@
+{
+  "name": "resume",
+  "version": "1.0.0",
+  "description": "My resume",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack-dev-server --open --hot",
+    "pub": "webpack --config webpack.pub.config.js"
+  },
+  "keywords": [],
+  "author": "shiyi",
+  "license": "ISC",
+  "dependencies": {
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "vue": "^2.6.6",
+    "vue-router": "^3.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-vue": "^2.0.2",
+    "clean-webpack-plugin": "^1.0.1",
+    "css-loader": "^2.1.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "^3.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "style-loader": "^0.23.1",
+    "url-loader": "^1.1.2",
+    "vue-loader": "^15.6.2",
+    "vue-template-compiler": "^2.6.6",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.1.14"
+  }
+}
