@@ -1,45 +1,46 @@
 const path = require('path')
-const htmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
-const cleanWebpackPlugin = require('clean-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const HTMLWebpackPlugin =require('html-webpack-plugin')
 
 module.exports = {
-  mode:"production",
+  mode:'production',
   entry:{
-    entry: path.join(__dirname,'./src/main.js'),
-    vue:'vue',
+    main:path.resolve(__dirname,'./src/main.js'),
+    vendors:['vue','vue-router']
   },
-  output: {
-    path:path.join(__dirname,'./dist'),
+  output:{
+    path:path.resolve(__dirname,'dist'),
     filename:'js/[name].js',
-    chunkFilename:'js/[name].js'
+    chunkFilename:'js/[name].[chunkhash:8].js',
   },
   plugins:[
-    new VueLoaderPlugin(),
-    new htmlWebpackPlugin({
-      template: path.join(__dirname,'./index.html'),
-      filename: 'index.html'
+    new VueLoaderPlugin,  
+    new CleanWebpackPlugin('dist'),
+    new MiniCssExtractPlugin({
+      filename:'css/style.css'
     }),
-    new cleanWebpackPlugin('dist'),
-    new ExtractTextPlugin('css/style.css'),
-    new OptimizeCssAssetsPlugin()
-  ],
-  optimization:{
-    runtimeChunk: {
-      name: "manifest"
-    },
-    splitChunks:{
-      cacheGroups:{ // 单独提取JS文件引入html
-          vue:{ // 键值可以自定义
-              chunks:'initial', // 
-              name:'vue', // 入口的entry的key
-              enforce:true   // 强制 
+    new HTMLWebpackPlugin({
+      template:'index.html',
+      filename:'index.html',
+    }),
+    new OptimizeCSSAssetsPlugin({
+      assetNameRegExp: /\.css$/g,
+      cssProcessor: require('cssnano'),
+      // cssProcessorOptions: cssnanoOptions,
+      cssProcessorPluginOptions: {
+        preset: ['default', {
+          discardComments: {
+            removeAll: true,
           },
-      }
-    }
-  },
+          normalizeUnicode: false
+        }]
+      },
+      canPrint: true
+    })
+  ], 
   module:{
     rules: [
       {
@@ -47,25 +48,57 @@ module.exports = {
         loader: 'vue-loader'
       },
       {
-        test:/\.less$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'less-loader']
-        })
-      },
-      {
-        test:/\.(jpg|jpeg|png|svg|gif)$/i,
-        use:'url-loader?limit=5000&name=images/[name].[ext]'
-      },
-      {
         test:/\.js$/,
         use:'babel-loader',
         exclude:/node_modules/
+      },
+      {
+        test:/\.less$/,
+        use:[
+          MiniCssExtractPlugin.loader,
+          // 'vue-style-loader',
+          'css-loader',
+          {
+            loader:'postcss-loader',
+            options:{
+              plugins:[
+                require('postcss-import')(),
+                require('autoprefixer')({
+                  browsers: ['last 30 versions', "> 2%", "Firefox >= 10", "ie 6-11"]
+                })
+              ]
+            }
+          },
+          'less-loader'
+      ]
+      },
+      {
+        test:/\.(jpg|jpeg|png|svg|gif)$/i,
+        use:'url-loader?limit=10000&name=[name].[ext]'
       },
       {
         test:/\.(ttf|eot|woff|woff2)$/,
         use:'url-loader'
       }
     ]
+  },
+  optimization:{
+    splitChunks: {
+              chunks: 'all',
+              minSize: 30000,
+              minChunks: 1,
+              maxAsyncRequests: 5,
+              maxInitialRequests: 3,
+              name: true,
+              cacheGroups: {
+                  styles: {
+                      name: 'style',
+                      test: /\.less$/,
+                      chunks: 'all',
+                      enforce: true
+                  }
+              }
+          }
   }
+  
 }
